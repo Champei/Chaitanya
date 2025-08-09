@@ -47,6 +47,31 @@ double tan(double x) {
     return sin(x) / cos(x);
 }
 
+double atan(double x) {
+    if (mod(x) <= 1.0) {
+        double term = x;
+        double sum = x;
+        for (int n = 1; n <= 40; n++) {
+            term *= -x * x;
+            sum += term / (2 * n + 1);
+        }
+        return sum;
+    } else {
+        double s = (x > 0) ? (PI / 2) : (-PI / 2);
+        return s - atan(1.0 / x);
+    }
+}
+
+double asin(double x) {
+    if (mod(x) > 1.0) return -1; // out of domain
+    return atan(x / sqrt(1 - x * x));
+}
+
+double acos(double x) {
+    if (mod(x) > 1.0) return -1; // out of domain
+    return PI / 2 - asin(x);
+}
+
 double exp(double x) {
     double term = 1;
     double sum = 1;
@@ -62,7 +87,7 @@ double ln(double x) {
     for (int i = 0; i < 100; i++) {
         double e = exp(y);
         y -= (e - x) / e;
-        if (abs(e - x) < SMALL) break;
+        if (mod(e - x) < SMALL) break;
     }
     return y;
 }
@@ -71,40 +96,60 @@ double pow(double base, double exponent) {
     return exp(exponent * ln(base));
 }
 
+string removeParentheses(string s) {
+    string result;
+    for (char c : s) {
+        if (c != '(' && c != ')') result += c;
+    }
+    return result;
+}
+
 double calculate(string input) {
+    input = removeParentheses(input);
     stringstream ss(input);
     double a, b;
     char op;
 
-    if (input.find("sqrt") != string::npos) {
-        ss.ignore(5, '(');
+    auto readNumber = [&]() {
         ss >> a;
-        return sqrt(a);
+        return a;
+    };
+
+    if (input.find("sqrt") == 0) {
+        ss.ignore(4);
+        return sqrt(readNumber());
     }
-    if (input.find("sin") != string::npos) {
-        ss.ignore(4, '(');
-        ss >> a;
-        return sin(a);
+    if (input.find("sin") == 0) {
+        ss.ignore(3);
+        return sin(readNumber());
     }
-    if (input.find("cos") != string::npos) {
-        ss.ignore(4, '(');
-        ss >> a;
-        return cos(a);
+    if (input.find("cos") == 0) {
+        ss.ignore(3);
+        return cos(readNumber());
     }
-    if (input.find("tan") != string::npos) {
-        ss.ignore(4, '(');
-        ss >> a;
-        return tan(a);
+    if (input.find("tan") == 0) {
+        ss.ignore(3);
+        return tan(readNumber());
     }
-    if (input.find("ln") != string::npos) {
-        ss.ignore(3, '(');
-        ss >> a;
-        return ln(a);
+    if (input.find("asin") == 0) {
+        ss.ignore(4);
+        return asin(readNumber());
     }
-    if (input.find("exp") != string::npos) {
-        ss.ignore(4, '(');
-        ss >> a;
-        return exp(a);
+    if (input.find("acos") == 0) {
+        ss.ignore(4);
+        return acos(readNumber());
+    }
+    if (input.find("atan") == 0) {
+        ss.ignore(4);
+        return atan(readNumber());
+    }
+    if (input.find("ln") == 0) {
+        ss.ignore(2);
+        return ln(readNumber());
+    }
+    if (input.find("exp") == 0) {
+        ss.ignore(3);
+        return exp(readNumber());
     }
     if (input.find("^") != string::npos) {
         size_t pos = input.find("^");
@@ -125,7 +170,7 @@ double calculate(string input) {
 
 int main() {
     string input;
-    cout << "calculator with: +, -, *, /, ^, sqrt(x), sin(x), cos(x), tan(x), exp(x), ln(x)\n";
+    cout << "calculator with: +, -, *, /, ^, sqrt(x), sin(x), cos(x), tan(x), asin(x), acos(x), atan(x), exp(x), ln(x)\n";
 
     while (true) {
         cout << "\nEnter expression (or 'exit'): ";
