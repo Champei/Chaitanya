@@ -5,8 +5,8 @@ using namespace std;
 int main() {
     string str;
     getline(cin, str);
-
-    int increase_by = 3;
+    int increase_by;
+    cin>>increase_by;
 
     for (int i = 0; i < str.size(); i++) {
         char ch = str[i];
